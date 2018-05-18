@@ -1,7 +1,6 @@
 package main
 
 import (
-  "fmt"
   "io/ioutil"
   "log"
   "os"
@@ -10,10 +9,9 @@ import (
   "sort"
   "strings"
 
-  "hcp/sina"
-
   "github.com/huyinghuan/encryption/cbc"
   "github.com/urfave/cli"
+  "hcp/action"
 )
 
 var (
@@ -21,7 +19,9 @@ var (
   SecretKey string
   Bucket string
   CBCKey = "hcp to cloud"
+
 )
+
 
 func getCommonFlags() []cli.Flag{
   // 关键参数
@@ -70,40 +70,11 @@ func readConfig()(ak string, sk string, b string, e error) {
   return
 }
 
-func initAction(c *cli.Context)error{
-  fmt.Println(AccessKey, SecretKey, Bucket)
-  if AccessKey == "" || SecretKey == "" || Bucket == ""{
-    return fmt.Errorf("AccessKey, SecretKey, Bucket\n 三个参数不能为空")
-  }
-  // 校验密钥
-  if err:=sina.Verify(AccessKey, SecretKey, Bucket); err!=nil{
-    return err
-  }
-  // 将key加密写入用户隐藏文件
-  current, err:=user.Current()
-  if err!=nil{
-    return err
-  }
-  configFilePath:=path.Join(current.HomeDir, ".hcp")
-  content := strings.Join([]string{AccessKey, SecretKey, Bucket}, ",")
-  encrypt := cbc.New(CBCKey)
-  encryptStr, err:=encrypt.EncryptString(content)
-  if err!=nil{
-    return err
-  }
-  if err:=ioutil.WriteFile(configFilePath, []byte(encryptStr), 0644); err!=nil{
-    return err
-  }
-  return nil
-}
 
 func appAction(c *cli.Context) error{
   ak, sk, bucket, err := readConfig()
   if err!=nil{
     return err
-  }
-  if c.String("bucket") != ""{
-    bucket = c.String("bucket")
   }
   // 校验密钥
   // log.Println("正在校验密钥...")
@@ -135,11 +106,6 @@ func main() {
   app.Version = "1.0.0"
 
   app.Flags = []cli.Flag{
-    cli.StringFlag{
-      Name: "bucket, b",
-      Value: "",
-      Usage: "bucket name, 有这个参数的时候会覆盖初始化时的默认bucket",
-    },
     cli.BoolFlag{
       Name:"random, r",
       Usage: "上传时使用随机文件名，避免覆盖",
@@ -166,8 +132,7 @@ func main() {
     {
       Name:    "init",
       Usage:   "初始化密钥，到本地目录",
-      Flags:    getCommonFlags(),
-      Action:   initAction,
+      Action:   action.InitAction,
     },
   }
   app.Action = appAction
