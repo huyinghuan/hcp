@@ -13,7 +13,6 @@ var(
 )
 
 
-
 func getCloud() string{
 	flag := true
 	target := ""

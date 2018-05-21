@@ -14,6 +14,9 @@ import (
   "hcp/action"
 )
 
+type Sina struct{
+
+}
 var (
   AccessKey string
   SecretKey string
