@@ -1,96 +1,14 @@
 package main
 
 import (
-  "io/ioutil"
   "log"
   "os"
-  "os/user"
-  "path"
   "sort"
-  "strings"
-
-  "github.com/huyinghuan/encryption/cbc"
   "github.com/urfave/cli"
   "hcp/action"
 )
 
-type Sina struct{
 
-}
-var (
-  AccessKey string
-  SecretKey string
-  Bucket string
-  CBCKey = "hcp to cloud"
-
-)
-
-
-func getCommonFlags() []cli.Flag{
-  // 关键参数
-  keysArgs :=[]cli.Flag{
-    cli.StringFlag{
-      Name: "ak, A",
-      Value: "",
-      Usage: "Access Key",
-      Destination: &AccessKey,
-    },
-    cli.StringFlag{
-      Name: "sk, S",
-      Value: "",
-      Usage: "Secret Key",
-      Destination: &SecretKey,
-    },
-    cli.StringFlag{
-      Name: "bucket, B",
-      Value: "",
-      Usage: "bucket name, 默认Bucket",
-      Destination: &Bucket,
-    },
-  }
-  return keysArgs
-}
-
-func readConfig()(ak string, sk string, b string, e error) {
-  current, err:=user.Current()
-  if err!=nil{
-    e = err
-    return
-  }
-  content, err := ioutil.ReadFile(path.Join(current.HomeDir, ".hcp"))
-  if err!=nil{
-    e = err
-    return
-  }
-  encrypt := cbc.New(CBCKey)
-  keyContent, err := encrypt.DecryptString(string(content))
-  if err!=nil{
-    e = err
-    return
-  }
-  keys := strings.Split(keyContent, ",")
-  ak, sk, b =keys[0], keys[1], keys[2]
-  return
-}
-
-
-func appAction(c *cli.Context) error{
-  ak, sk, bucket, err := readConfig()
-  if err!=nil{
-    return err
-  }
-  // 校验密钥
-  // log.Println("正在校验密钥...")
-  // if err:=sina.Verify(ak, sk, bucket); err!=nil{
-  //   return err
-  // }
-  // log.Println("校验成功")
-  log.Println(ak, sk, bucket)
-  log.Println(c.Bool("random"))
-  c.Args()
-
-  return nil
-}
 
 func main() {
   app := cli.NewApp()
@@ -138,7 +56,7 @@ func main() {
       Action:   action.InitAction,
     },
   }
-  app.Action = appAction
+  app.Action = action.Action
   sort.Sort(cli.FlagsByName(app.Flags))
   sort.Sort(cli.CommandsByName(app.Commands))
 

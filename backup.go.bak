@@ -145,18 +145,10 @@ func main() {
 			Usage: "上传时使用随机文件名，避免覆盖",
 		},
 		cli.BoolFlag{
-			Name:"upload, u",
-			Usage: `命令最后一个参数不作为远程文件夹，远程文件名使用，上传文件到bucket根目录
+			Name:"same, s",
+			Usage: `所有文件到上传到远程同一个目录目录
         如：
-          hcp -u a.js a/b.js 
-        将上传 a.js 和 b.js到远程根目录 xxx/a.js , xxx/a/b.js
-      `,
-		},
-		cli.BoolFlag{
-			Name:"first, f",
-			Usage: `所有文件到上传到远程根目录
-        如：
-          hcp -f a.js a/b.js 
+          hcp -s a.js a/b.js /
         将上传 a.js 和 b.js到远程根目录 xxx/a.js , xxx/b.js
       `,
 		},
